@@ -37,16 +37,16 @@ export default function Home() {
       "https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.4.0/fabric.min.js",
       "fabric.js"
     ).then(() => {
-      const canvas = new window.fabric.Canvas("drawing-sheet");
-      canvas.isDrawingMode = true;
-      canvas.freeDrawingBrush.width = 14;
-      canvas.freeDrawingBrush.color = "#fff";
-      canvas.backgroundColor = "#000";
-      const ctx = canvas.getContext();
-      ctx.fillStyle = "#000";
-      ctx.fillRect(0, 0, canvas.width!, canvas.height!);
       setCanvas((c) => {
         if (c) return c;
+        const canvas = new window.fabric.Canvas("drawing-sheet");
+        canvas.isDrawingMode = true;
+        canvas.freeDrawingBrush.width = 14;
+        canvas.freeDrawingBrush.color = "#fff";
+        canvas.backgroundColor = "#000";
+        const ctx = canvas.getContext();
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, canvas.width!, canvas.height!);
         return canvas;
       });
     });
