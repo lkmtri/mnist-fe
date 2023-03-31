@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { CanvasRef, Canvas } from "@/components/Canvas";
 import { useFabricJs } from "@/hooks/useFabricJs";
 import { useTensorflowModel } from "@/hooks/useTensorflowModel";
+import { Spin } from "@/components/Spin";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -13,7 +14,6 @@ const maxIdx = (arr: number[]) => {
 };
 
 export default function Home() {
-  const [src, setSrc] = useState<string>();
   const canvasRef = useRef<CanvasRef | null>(null);
   const { model, isLoading: isLoadingModel } =
     useTensorflowModel("/model.json");
@@ -25,7 +25,6 @@ export default function Home() {
 
     if (!canvas || !model) return;
 
-    setSrc(canvas.toDataURL());
     let image = tf.browser
       .fromPixels(
         canvas.getContext().getImageData(0, 0, canvas.width!, canvas.height!),
@@ -48,7 +47,11 @@ export default function Home() {
   };
 
   if (isLoadingModel) {
-    return <p>Loading...</p>;
+    return (
+      <div className="w-screen h-screen flex justify-center items-center">
+        <Spin />
+      </div>
+    );
   }
 
   return (
