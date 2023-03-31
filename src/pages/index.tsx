@@ -1,8 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 import * as tf from "@tensorflow/tfjs";
 import { Inter } from "next/font/google";
-import { useEffect, useState } from "react";
-import { init } from "@/utils/lib";
+import { useRef, useState } from "react";
+import { CanvasRef, Canvas } from "@/components/Canvas";
+import { useFabricJs } from "@/hooks/useFabricJs";
+import { useTensorflowModel } from "@/hooks/useTensorflowModel";
+
 const inter = Inter({ subsets: ["latin"] });
 
 const maxIdx = (arr: number[]) => {
@@ -18,41 +21,17 @@ const maxIdx = (arr: number[]) => {
   return idx;
 };
 
-const useModel = (path: string) => {
-  const [model, setModel] = useState<tf.LayersModel>();
-  useEffect(() => {
-    tf.loadLayersModel("/model.json").then((m) => setModel(m));
-  }, [path]);
-  return model;
-};
-
 export default function Home() {
   const [src, setSrc] = useState<string>();
-  const [canvas, setCanvas] = useState<fabric.Canvas>();
-  const model = useModel("/model.json");
+  const canvasRef = useRef<CanvasRef | null>(null);
+  const { model, isLoading: isLoadingModel } =
+    useTensorflowModel("/model.json");
   const [prediction, setPrediction] = useState<number>();
-
-  useEffect(() => {
-    init(
-      "https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.4.0/fabric.min.js",
-      "fabric.js"
-    ).then(() => {
-      setCanvas((c) => {
-        if (c) return c;
-        const canvas = new window.fabric.Canvas("drawing-sheet");
-        canvas.isDrawingMode = true;
-        canvas.freeDrawingBrush.width = 14;
-        canvas.freeDrawingBrush.color = "#fff";
-        canvas.backgroundColor = "#000";
-        const ctx = canvas.getContext();
-        ctx.fillStyle = "#000";
-        ctx.fillRect(0, 0, canvas.width!, canvas.height!);
-        return canvas;
-      });
-    });
-  }, [model]);
+  useFabricJs(); // prefetch fabric-js
 
   const handleClick = async () => {
+    const canvas = canvasRef?.current?.getCanvas();
+
     if (!canvas || !model) return;
 
     setSrc(canvas.toDataURL());
@@ -73,11 +52,15 @@ export default function Home() {
     canvas.clear();
   };
 
+  if (isLoadingModel) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <main style={inter.style}>
       <div className="w-screen flex justify-between items-center">
         <div className="border-teal-700">
-          <canvas id="drawing-sheet" width={280} height={280} />
+          <Canvas ref={canvasRef} width={280} height={280} />
         </div>
         {src && <img src={src} alt="" className="h-[280px] w-[280px]" />}
         {prediction !== undefined && (
