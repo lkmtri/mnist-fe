@@ -9,16 +9,7 @@ import { useTensorflowModel } from "@/hooks/useTensorflowModel";
 const inter = Inter({ subsets: ["latin"] });
 
 const maxIdx = (arr: number[]) => {
-  let curMax = arr[0];
-  let idx = 0;
-  for (let i = 1; i < arr.length; i += 1) {
-    if (arr[i] > curMax) {
-      curMax = arr[i];
-      idx = i;
-    }
-  }
-
-  return idx;
+  return arr.indexOf(Math.max(...arr));
 };
 
 export default function Home() {
@@ -49,7 +40,11 @@ export default function Home() {
     ) {
       setPrediction(maxIdx(Array.from(predictions.dataSync())));
     }
-    canvas.clear();
+  };
+
+  const clear = () => {
+    canvasRef?.current?.getCanvas()?.clear?.();
+    setPrediction(undefined);
   };
 
   if (isLoadingModel) {
@@ -57,23 +52,31 @@ export default function Home() {
   }
 
   return (
-    <main style={inter.style}>
-      <div className="w-screen flex justify-between items-center">
-        <div className="border-teal-700">
-          <Canvas ref={canvasRef} width={280} height={280} />
-        </div>
-        {src && <img src={src} alt="" className="h-[280px] w-[280px]" />}
-        {prediction !== undefined && (
-          <div className="flex justify-center items-center text-9xl">
-            {prediction}
+    <main
+      style={inter.style}
+      className="w-screen h-screen flex justify-center items-center p-4"
+    >
+      <div className="w-screen flex justify-center items-center md:items-start gap-5 flex-col md:flex-row">
+        <div className="flex flex-col gap-3 w-[280px]">
+          <div className="shadow-lg">
+            <Canvas ref={canvasRef} width={280} height={280} />
           </div>
-        )}
-        <button
-          onClick={handleClick}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Predict
-        </button>
+          <button
+            onClick={handleClick}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded self-stretch"
+          >
+            Predict
+          </button>
+          <button
+            onClick={clear}
+            className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded self-stretch"
+          >
+            Clear
+          </button>
+        </div>
+        <div className="h-[280px] w-[280px] flex justify-center items-center text-9xl shadow-md">
+          {prediction ?? "?"}
+        </div>
       </div>
     </main>
   );

@@ -2,6 +2,7 @@ import { useFabricJs } from "@/hooks/useFabricJs";
 import { init } from "@/utils/lib";
 import {
   forwardRef,
+  HTMLProps,
   useEffect,
   useImperativeHandle,
   useRef,
@@ -13,10 +14,7 @@ export interface CanvasRef {
   getCanvas: () => fabric.Canvas | undefined;
 }
 
-export interface CanvasProps {
-  height: number;
-  width: number;
-}
+export interface CanvasProps extends HTMLProps<HTMLCanvasElement> {}
 
 export const Canvas = forwardRef<CanvasRef, CanvasProps>(function InnerCanvas(
   props,
@@ -36,12 +34,12 @@ export const Canvas = forwardRef<CanvasRef, CanvasProps>(function InnerCanvas(
     const ctx = canvas.getContext();
     ctx.fillStyle = "#000";
     ctx.fillRect(0, 0, canvas.width!, canvas.height!);
-    setCanvas(canvas);
+    setCanvas((c) => c ?? canvas);
   }, [isLoading]);
 
   useImperativeHandle(_ref, () => ({
     getCanvas: () => canvas,
   }));
 
-  return <canvas ref={ref} height={props.height} width={props.width} />;
+  return <canvas ref={ref} {...props} />;
 });
